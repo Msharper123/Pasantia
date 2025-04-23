@@ -542,3 +542,10 @@ ggplot(sessile, aes(x= new_date, y = species_richness, color = Treatment)) +
   geom_point() +
   labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
   theme_classic()
+
+#aprobar github
+ggplot(sessile_CHAI, aes(x = new_date, y = Pink_sponge, color = Treatment)) +
+  geom_smooth() +
+  geom_point() +
+  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
+  theme_classic()
