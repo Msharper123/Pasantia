@@ -85,8 +85,8 @@ ggplot(d1, aes(x = new_date, y = Mastocarpus_latissimus, color = Treatment)) +
 
 #plot lado por lado para comparar Mazzaella laminarioides a Mastocarpus latissimus
 library(ggplot2)
-install.packages(patchwork)
-
+install.packages("patchwork")
+library(patchwork)
 p1 <- ggplot(d1, aes(x = new_date, y = Mastocarpus_latissimus)) +
   stat_summary(fun.data = "mean_cl_boot") +
   stat_summary(fun = mean, geom = "line") +
@@ -132,8 +132,9 @@ p4 <- ggplot(d1, aes(x = new_date, y = Mazzaella_laminarioides, color = Treatmen
 
 #------MINI PROYECTO_DIVERSIDAD DE ESPECIES-----
 #1. Filtrar Sitios en el Sur: PBLA, CALF, CHEU, CHAI
+  #hice un error en esta paso, ademas no necesito filtrar por ambos proyecto y sitio porque este proyecto solamente incluye plbla, chai, cheu, calf)
 d2 <- d %>% 
-  filter(proyect == 1230286, Site == c("PBLA", "CALF", "CHEU", "CHAI"))
+  filter(proyect == 1230286)
 
 #ver los resultados
 view(d2)
@@ -147,6 +148,16 @@ install.packages("lattice")
 library(vegan)
 library(permute)
 library(lattice)
+
+#anadir la fecha a d2
+d2$Year <- as.character(d2$Year)
+d2$Month <- as.character(d2$Month)
+d2$Day <- as.character(d2$Day)
+
+d2 <- d2 %>% 
+  mutate(new_date = as.Date(paste(d2$Year, d2$Month, d2$Day, sep = "-"), format = "%Y-%m-%d"))
+
+view(d2)
 
 #calcular diversidad de especies sessiles
 #SESSILES: filtrar para sessiles
@@ -231,10 +242,12 @@ ggplot(sessile, aes(x = sessilediversity, y = Mastocarpus_latissimus )) +
   geom_point() +
   labs(x = "diversidad de sesiles", y = "Cubierta Porcentual (%)", title = "Cubierta Porcentual de Mastocarpus latissimus con \n diversidad de especies sesiles") +
   theme_classic() 
+
 #evitar los ceros en moviles
 mobile <- mobile %>% 
   mutate(Mastocarpus_latissimus = ifelse(Mastocarpus_latissimus == 0, NA, Mastocarpus_latissimus))
 view(mobile$Mastocarpus_latissimus)
+
 #hacer un grafico sin los ceros de mastocarpus
 ggplot(mobile, aes(x = mobilediversity, y = Mastocarpus_latissimus)) +
   geom_smooth() +
@@ -267,9 +280,9 @@ p9 <- ggplot(sessile, aes(x = sessilediversity, y = Mastocarpus_latissimus )) +
   geom_point() +
   labs(x = "diversidad de sesiles", y = "Cubierta Porcentual (%)", title = "") +
   theme_classic() +
-  annotate("text", x=0.53, y=109, label="y = 60.11 - 36.65x") +
-  annotate("text", x=0.75, y=99, label="Adjusted R-sqaured = 0.07217") +
-  annotate("text", x=0.47, y=89, label="p = 0.0859")
+  annotate("text", x=0.53, y=109, label="y = 38.75 - 12.476") +
+  annotate("text", x=0.75, y=99, label="Adjusted R-squared = 0.005717") +
+  annotate("text", x=0.47, y=89, label="p = 0.193")
 
 #modelo lineal de moviles
 oneway.model2 <- lm(Mastocarpus_latissimus ~ mobilediversity, data = mobile)
@@ -282,9 +295,9 @@ p10 <- ggplot(mobile, aes(x = mobilediversity, y = Mastocarpus_latissimus )) +
   geom_point() +
   labs(x = "diversidad de moviles", y = "Cubierta Porcentual (%)", title = "") +
   theme_classic() +
-  annotate("text", x=0.50, y=105, label="y = 60.52 - 26.63x") +
-  annotate("text", x=0.75, y=95, label="Adjusted R-sqaured = 0.04653") +
-  annotate("text", x=0.53, y=85, label="p = 0.136")
+  annotate("text", x=0.50, y=105, label="y = 42.455 - 15.756x") +
+  annotate("text", x=0.75, y=95, label="Adjusted R-sqaured = 0.0284") +
+  annotate("text", x=0.53, y=85, label="p = 0.03348")
 
 p9 + p10 + plot_annotation(title = "Cubierta Porcentual de Mastocarpus latissimus con diversidad \nde especies")
 
@@ -328,7 +341,7 @@ group_model <- d2 %>%
     model = lm(Mastocarpus_latissimus ~ new_date2, data = .)
     tidy(model)
   })
-print(group_model)
+
 #view results
 summary(group_model)
 print(group_model)
@@ -369,8 +382,8 @@ p11 <- ggplot(sessile_with_treatment, aes(x = sessilediversity, y = Mastocarpus_
   labs(x = "diversidad de sesiles", y = "Cubierta Porcentual (%)", title = "") +
   theme_classic() +
   theme(legend.position = "none") +
-  annotate("text", x=0.47, y=109, label="Control: p = 0.431") +
-  annotate("text", x=0.47, y=99, label="Pulse: p = 0.429")
+  annotate("text", x=0.47, y=109, label="Control: p = 0.694") +
+  annotate("text", x=0.47, y=99, label="Pulse: p = 0.143")
 
 #----hacer un modelo linea por moviles y distingue entre control y pulse ----
 #add treatment column to movil data
@@ -405,13 +418,13 @@ print(model4)
 ggplot(d2, aes(x = Mazzaella_laminarioides, y = Mastocarpus_latissimus)) +
   geom_smooth(method = "lm") +
   geom_point() +
-  labs(x = "Mastocarpus latissimus", y = "Mazzaella laminarioides", title = "Relacion entre la Cubierta Porcentual de Mazzaella laminarioides \nen Mastocarpus latissimus") +
+  labs(x = "Mazzaella laminarioides", y = "Mastocarpus latissimus", title = "Relacion entre la Cubierta Porcentual de Mazzaella \nlaminarioides y Mastocarpus latissimus") +
   theme_classic() +
   scale_x_continuous(limits = c(0,100)) +
   scale_y_continuous(limits = c(0,100)) +
-  annotate("text", x=60, y=100, label="y = 14.8245 - 0.1371x") +
-  annotate("text", x=65, y=90, label="Adjusted R-squared = 0.01674") +
-  annotate("text", x=53, y=80, label="p = 0.0891")
+  annotate("text", x=60, y=100, label="y = 11.73661 - 0.09815x") +
+  annotate("text", x=65, y=90, label="Adjusted R-squared = 0.01469") +
+  annotate("text", x=53, y=80, label="p < 0.01 ")
 
 #riqueza de especies + modelos lineas
 mobile <- mobile %>% 
@@ -438,10 +451,11 @@ print(model6)
 p13 <- ggplot(sessile, aes(x = species_richness, y = Mastocarpus_latissimus )) +
   geom_smooth(method = "lm") +
   geom_point() +
+  scale_y_continuous(limits = c(0, 110)) +
   labs(x = "riqueza de sesiles", y = "Cubierta Porcentual (%)", title = "") +
   theme_classic() +
-  annotate("text", x=4, y=100, label="y = 103.97 - 21.79x") +
-  annotate("text", x=4, y=110, label="Adjusted R-squared = 0.5642") +
+  annotate("text", x=4, y=100, label="y = 66.03 - 10.95x") +
+  annotate("text", x=4, y=110, label="Adjusted R-squared = 0.2385") +
   annotate("text", x=4, y=90, label="p < 0.001")
 
 p14 <- ggplot(mobile, aes(x = species_richness, y = Mastocarpus_latissimus )) +
@@ -449,9 +463,9 @@ p14 <- ggplot(mobile, aes(x = species_richness, y = Mastocarpus_latissimus )) +
   geom_point() +
   labs(x = "riqueza de moviles", y = "Cubierta Porcentual (%)", title = "") +
   theme_classic() +
-  annotate("text", x=2, y=100, label="y = 61.90 - 7.58x") +
-  annotate("text", x=2, y=110, label="Adjusted R-squared = 0.02087") +
-  annotate("text", x=2, y=90, label="p = 0.217149")
+  annotate("text", x=2, y=100, label="y = 43.265 - 4.354x") +
+  annotate("text", x=2, y=110, label="Adjusted R-squared = 0.01588") +
+  annotate("text", x=2, y=90, label="p = 0.08579")
 
 p13 + p14 +plot_annotation(title="Cubierta Porcentual de Mastocarpus latissimus con \nriqueza de especies")
 
@@ -538,7 +552,7 @@ ggplot(sessile_CHAI, aes(x = new_date, y = species_richness, color = Treatment))
 
 #chequar datos porque los tratimientos no ver correcto
 ggplot(sessile, aes(x= new_date, y = species_richness, color = Treatment)) +
-  geom_smooth() +
+  # geom_smooth() +
   geom_point() +
   labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
   theme_classic()
