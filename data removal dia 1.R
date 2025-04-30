@@ -480,8 +480,19 @@ View(sessile)
 ggplot(sessile, aes(x = species_richness, y = Mastocarpus_latissimus, color = Treatment)) +
   geom_smooth() +
   geom_point() +
-  labs(x = "riqueza de sessiles", y = "Cubierta Porcentual de Mastocarpus(%)", title = "Cubierta Porcentual de Mastocarpus latissimus con \nriqueza de sessiles (sin ceros)") +
-  theme_classic() 
+  labs(x = "riqueza de sessiles", y = "Cubierta Porcentual de Mastocarpus(%)", title = "Cubierta Porcentual de Mastocarpus latissimus con \nriqueza de sessiles") +
+  theme_classic() +
+  scale_x_continuous(limits = c(1,10)) +
+  scale_y_continuous(limits = c(0,100))
+
+group_model4 <- sessile %>% 
+  group_by(Treatment) %>% 
+  do({
+    model7 = lm(Mastocarpus_latissimus ~ species_richness, data = .)
+    tidy(model7)
+  })
+print(group_model4)
+summary(group_model4)
 
 #-------------Sicronia------------
 #riqueza de sessiles en los diferentes sitios con tiempo
