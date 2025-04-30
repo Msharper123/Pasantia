@@ -500,9 +500,47 @@ summary(group_model4)
 sessile <- mutate(sessile, new_date = d2$new_date2)
 View(sessile)
 
+#2 agrupar datos por mes
+sessile <- sessile %>%
+  mutate(month_date = format(new_date, "%Y-%m"))
+
+#3. graficar riqueza de espeices con tiempo
+ggplot(sessile, aes(x = month_date, y = species_richness, color = Treatment)) +
+  stat_summary(fun.data = "mean_cl_boot", position = position_dodge(width = 15)) +
+  stat_summary(fun = mean, geom = "line", position = position_dodge(width = 15)) +
+  geom_smooth() +
+  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
+  theme_classic()  
+  scale_x_date(
+    limits = c(as.Date("2023-10-01"), as.Date("2025-01-20")),
+    breaks = c(seq(as.Date("2023-10"), as.Date("2025-01"), by = "3 months"))
+  )
+
+#hacer un modelo lineal
+group_model5 <- sessile %>% 
+  group_by(Treatment) %>% 
+  do({
+    model8 = lm(as.numeric(new_date) ~ species_richness, data = .)
+    tidy(model8)
+  })
+print(group_model5)
+summary(group_model5)
+
+
+
+
+
+
 #2. anadir sitios ("PBLA", "CALF", "CHEU", "CHAI")
 sessile <- mutate(sessile, site = d2$Site)
 View(sessile)
+
+
+
+
+
+
+
 
 #3 evitar species_richness2 columna para claridad
 sessile <- sessile %>% select(-species_richness2) 
@@ -512,7 +550,7 @@ View(sessile)
 #a. PBLA
   #filtrar
 sessile_PBLA <- sessile %>% 
-  filter(site == c("PBLA"))
+  filter(site == "PBLA")
 View(sessile_PBLA)
 
   #graficar
