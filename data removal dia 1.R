@@ -550,15 +550,24 @@ ggplot(sessile, aes(x = month_date, y = species_richness, color = Treatment)) +
   )
 
 #hacer un modelo lineal
-group_model6 <- sessile %>% 
-  group_by(site, Treatment) %>% 
-  do({
-    model9 = lm(as.numeric(month_date) ~ species_richness, data = .)
-    tidy(model9)
-  })%>%
-  select(site, Treatment, r.squared, p.value)
-print(group_model6)
-summary(group_model6)
+# group_model6 <- sessile %>% 
+#   group_by(site, Treatment) %>% 
+#   do({
+#     model9 = lm(as.numeric(month_date) ~ species_richness, data = .)
+#     tidy(model9)
+#   })%>%
+#   select(site, Treatment, p.value)
+# print(group_model6)
+# summary(group_model6)
+  group_model6 <- sessile %>%
+    group_by(site, Treatment) %>%
+    do({
+      model = lm(species_richness ~ as.numeric(month_date), data = .)
+      glance(model)  # Gives overall model statistics
+    }) %>%
+    select(site, Treatment, r.squared, p.value)
+  
+  print(group_model6)
   
 #ver a competicion a traves de mastocarpus 
 
