@@ -550,24 +550,47 @@ ggplot(sessile, aes(x = month_date, y = species_richness, color = Treatment)) +
   )
 
 #hacer un modelo lineal
-# group_model6 <- sessile %>% 
-#   group_by(site, Treatment) %>% 
-#   do({
-#     model9 = lm(as.numeric(month_date) ~ species_richness, data = .)
-#     tidy(model9)
-#   })%>%
-#   select(site, Treatment, p.value)
-# print(group_model6)
-# summary(group_model6)
   group_model6 <- sessile %>%
     group_by(site, Treatment) %>%
     do({
       model = lm(species_richness ~ as.numeric(month_date), data = .)
-      glance(model)  # Gives overall model statistics
+      glance(model)  # dar statisticas generales mientras tidy dar stats mas especificas 
     }) %>%
     select(site, Treatment, r.squared, p.value)
   
   print(group_model6)
   
-#ver a competicion a traves de mastocarpus 
+#Competicion con Mastocarpus (riqueza con % mastocarpus)
+  #graficar riqueza con mastocarpus
+  # ggplot(sessile, aes(x = site, y = Mastocarpus_latissimus, color = Treatment)) +
+  #   geom_bar() +
+  #   labs(x = "Riqueza de Species", y = "% Cubierta de Mastocarpus Latissimus", title = "") +
+  #   # theme_classic() + 
+  #   # facet_wrap(~site)
+
+#ver abudnace en cada sitio 
+ggplot(sessile, aes(x = site, y = Mastocarpus_latissimus, fill = Treatment)) +
+  geom_bar(stat = "summary", fun = "mean", fun = "mean_cl_boot", position = "dodge") +
+  labs(x = "Sitio", y = "Medio % cubierta de Mastocarpus Latissimus", title = "Medio riqueza de sessiles con tiempo") +
+    theme_classic()
+
+# ggplot(sessile, aes(x = site, y = Mastocarpus_latissimus, fill = Treatment)) +
+#   stat_summary(
+#     fun = mean, 
+#     geom = "bar", 
+#     position = position_dodge(width = 0.9)
+#   ) +
+#   stat_summary(
+#     fun.data = mean_cl_boot, 
+#     geom = "errorbar", 
+#     position = position_dodge(width = 0.9), 
+#     width = 0.2
+#   ) +
+#   labs(
+#     x = "Sitio", 
+#     y = "Medio % cubierta de Mastocarpus latissimus", 
+#     title = "Media de la riqueza de sésiles con el tiempo"
+#   ) +
+#   theme_classic()
+
 
