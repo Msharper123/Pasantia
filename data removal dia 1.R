@@ -502,108 +502,63 @@ View(sessile)
 
 #2 agrupar datos por mes
 sessile <- sessile %>%
-  mutate(month_date = format(new_date, "%Y-%m"))
+  mutate(month_date = format(new_date, "%Y-%m-01"))
+View(sessile)
+
+sessile$month_date <- as.Date(sessile$month_date)
 
 #3. graficar riqueza de espeices con tiempo
 ggplot(sessile, aes(x = month_date, y = species_richness, color = Treatment)) +
   stat_summary(fun.data = "mean_cl_boot", position = position_dodge(width = 15)) +
   stat_summary(fun = mean, geom = "line", position = position_dodge(width = 15)) +
-  geom_smooth() +
-  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
-  theme_classic()  
+  # geom_smooth(se = FALSE) +
+  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "Medio riqueza de sessiles con tiempo") +
+  theme_classic() + 
   scale_x_date(
-    limits = c(as.Date("2023-10-01"), as.Date("2025-01-20")),
-    breaks = c(seq(as.Date("2023-10"), as.Date("2025-01"), by = "3 months"))
-  )
-
+  limits = c(as.Date("2023-09-01"), as.Date("2025-02-01")), 
+  breaks = seq(as.Date("2023-10-01"), as.Date("2025-02-01"), by = "4 months")
+)
 #hacer un modelo lineal
 group_model5 <- sessile %>% 
   group_by(Treatment) %>% 
   do({
-    model8 = lm(as.numeric(new_date) ~ species_richness, data = .)
+    model8 = lm(as.numeric(month_date) ~ species_richness, data = .)
     tidy(model8)
   })
 print(group_model5)
 summary(group_model5)
 
-
-
-
-
-
-#2. anadir sitios ("PBLA", "CALF", "CHEU", "CHAI")
+#4. anadir sitios ("PBLA", "CALF", "CHEU", "CHAI")
 sessile <- mutate(sessile, site = d2$Site)
 View(sessile)
 
-
-
-
-
-
-
-
-#3 evitar species_richness2 columna para claridad
+#5 evitar species_richness2 columna para claridad
 sessile <- sessile %>% select(-species_richness2) 
 View(sessile)
 
-#3 graficar por sitio
-#a. PBLA
-  #filtrar
-sessile_PBLA <- sessile %>% 
-  filter(site == "PBLA")
-View(sessile_PBLA)
+#6 graficar por sitio
+ggplot(sessile, aes(x = month_date, y = species_richness, color = Treatment)) +
+  stat_summary(fun.data = "mean_cl_boot", position = position_dodge(width = 15)) +
+  stat_summary(fun = mean, geom = "line", position = position_dodge(width = 15)) +
+  # geom_smooth(se = FALSE) +
+  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "Medio riqueza de sessiles con tiempo") +
+  theme_classic() + 
+  facet_wrap(~site)
+  scale_x_date(
+    limits = c(as.Date("2023-09-01"), as.Date("2025-02-01")), 
+    breaks = seq(as.Date("2023-10-01"), as.Date("2025-02-01"), by = "4 months")
+  )
 
-  #graficar
-ggplot(sessile_PBLA, aes(x = new_date, y = species_richness, color = Treatment)) +
-  geom_smooth() +
-  geom_point() +
-  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
-  theme_classic() 
-
-#b CALF
-  #filtrar
-sessile_CALF <- sessile %>% 
-  filter(site == c("CALF"))
-View(sessile_CALF)
-
-  #graficar
-ggplot(sessile_CALF, aes(x = new_date, y = species_richness, color = Treatment)) +
-  geom_smooth() +
-  geom_point() +
-  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
-  theme_classic()
-
-#c CHEU
-  #filtrar
-sessile_CHEU <- sessile %>% 
-  filter(site == c("CHEU"))
-View(sessile_CHEU)
-
-  #graficar
-ggplot(sessile_CHEU, aes(x = new_date, y = species_richness, color = Treatment)) +
-  geom_smooth() +
-  geom_point() +
-  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
-  theme_classic()
-
-#d CHAI
-  #filtrar
-sessile_CHAI <- sessile %>% 
-  filter(site == c("CHAI"))
-View(sessile_CHAI)
-
-  #graficar
-ggplot(sessile_CHAI, aes(x = new_date, y = species_richness, color = Treatment)) +
-  geom_smooth() +
-  geom_point() +
-  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
-  theme_classic()
-
-#chequar datos porque los tratimientos no ver correcto
-ggplot(sessile, aes(x= new_date, y = species_richness, color = Treatment)) +
-  # geom_smooth() +
-  geom_point() +
-  labs(x = "Fecha", y = "Riqueza de Sessiles", title = "") +
-  theme_classic()
-
+#hacer un modelo lineal
+group_model6 <- sessile %>% 
+  group_by(site, Treatment) %>% 
+  do({
+    model9 = lm(as.numeric(month_date) ~ species_richness, data = .)
+    tidy(model9)
+  })%>%
+  select(site, Treatment, r.squared, p.value)
+print(group_model6)
+summary(group_model6)
+  
+#ver a competicion a traves de mastocarpus 
 
